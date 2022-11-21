@@ -32,7 +32,9 @@ class _DropdownMenuPainter extends CustomPainter {
     this.elevation,
     this.selectedIndex,
     this.resize,
-  })  : _painter = BoxDecoration(color: color, borderRadius: BorderRadius.circular(5), boxShadow: kElevationToShadow[elevation!]).createBoxPainter(),
+  })  : _painter = BoxDecoration(
+                color: color, borderRadius: BorderRadius.circular(5), boxShadow: kElevationToShadow[elevation!])
+            .createBoxPainter(),
         super(repaint: resize);
 
   final Color? color;
@@ -75,7 +77,10 @@ class _DropdownMenuPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DropdownMenuPainter oldPainter) {
-    return oldPainter.color != color || oldPainter.elevation != elevation || oldPainter.selectedIndex != selectedIndex || oldPainter.resize != resize;
+    return oldPainter.color != color ||
+        oldPainter.elevation != elevation ||
+        oldPainter.selectedIndex != selectedIndex ||
+        oldPainter.resize != resize;
   }
 }
 
@@ -284,6 +289,7 @@ class _DropdownRoute<T> extends PopupRoute<_DropdownRouteResult<T>> {
     this.elevation = 8,
     required this.style,
     this.barrierLabel,
+    this.itemPadding,
   });
 
   final List<DropdownMenuItem<T>>? items;
@@ -320,6 +326,8 @@ class _DropdownRoute<T> extends PopupRoute<_DropdownRouteResult<T>> {
   final String? barrierLabel;
 
   final double? itemWidth;
+
+  final EdgeInsets? itemPadding;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
@@ -374,7 +382,10 @@ class _DropdownRoute<T> extends PopupRoute<_DropdownRouteResult<T>> {
               menuHeight: menuHeight,
               textDirection: textDirection,
             ),
-            child: menu,
+            child: Container(
+              child: menu,
+              padding: itemPadding,
+            ),
           );
         },
       ),
@@ -404,6 +415,7 @@ class DropdownBelow<T> extends StatefulWidget {
       this.dropdownColor,
       this.elevation = 8,
       this.isDense = false,
+      this.itemPadding,
       this.icon})
       : assert(value == null || items.where((DropdownMenuItem<T> item) => item.value == value).length == 1),
         super(key: key);
@@ -465,6 +477,8 @@ class DropdownBelow<T> extends StatefulWidget {
   /// instead.
   final Color? dropdownColor;
 
+  final EdgeInsets? itemPadding;
+
   @override
   _DropdownBelowState<T> createState() => _DropdownBelowState<T>();
 }
@@ -503,7 +517,8 @@ class _DropdownBelowState<T> extends State<DropdownBelow<T>> with WidgetsBinding
   }
 
   void _updateSelectedIndex() {
-    assert(widget.value == null || widget.items.where((DropdownMenuItem<T> item) => item.value == widget.value).length == 1);
+    assert(widget.value == null ||
+        widget.items.where((DropdownMenuItem<T> item) => item.value == widget.value).length == 1);
     _selectedIndex = null;
     for (int itemIndex = 0; itemIndex < widget.items.length; itemIndex++) {
       if (widget.items[itemIndex].value == widget.value) {
@@ -517,7 +532,8 @@ class _DropdownBelowState<T> extends State<DropdownBelow<T>> with WidgetsBinding
     final RenderBox itemBox = context.findRenderObject() as RenderBox;
     final Rect itemRect = itemBox.localToGlobal(Offset.zero) & itemBox.size;
     final TextDirection textDirection = Directionality.of(context);
-    final EdgeInsetsGeometry menuMargin = ButtonTheme.of(context).alignedDropdown ? _kAlignedMenuMargin : _kUnalignedMenuMargin;
+    final EdgeInsetsGeometry menuMargin =
+        ButtonTheme.of(context).alignedDropdown ? _kAlignedMenuMargin : _kUnalignedMenuMargin;
 
     _dropdownRoute = _DropdownRoute<T>(
       itemWidth: widget.itemWidth,
@@ -529,6 +545,7 @@ class _DropdownBelowState<T> extends State<DropdownBelow<T>> with WidgetsBinding
       dropdownColor: widget.dropdownColor,
       style: widget.itemTextstyle ?? TextStyle(),
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      itemPadding: widget.itemPadding,
     );
 
     Navigator.push(context, _dropdownRoute!).then<void>((_DropdownRouteResult<T>? newValue) {
